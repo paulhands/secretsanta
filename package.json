@@ -2,12 +2,14 @@
   "name": "SecretSanta",
   "version": "0.1.0",
   "private": true,
-  "devDependencies": {
-    "react-scripts": "1.0.4"
+  "engines": {
+    "npm": "3.10.8",
+    "node": "7.0.0"
   },
   "dependencies": {
     "react": "^15.6.1",
-    "react-dom": "^15.6.1"
+    "react-dom": "^15.6.1",
+    "react-scripts": "1.0.4"
   },
   "scripts": {
     "start": "react-scripts start",
