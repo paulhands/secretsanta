@@ -1,41 +1,175 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
-    <!--
-      manifest.json provides metadata used when your web app is added to the
-      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
     <title>Xmas</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      .App {
+        text-align: center;
+      }
+
+      .App-header {
+        background-color: #222;
+        padding: 20px;
+        color: white;
+      }
+
+      .App-intro {
+        font-size: large;
+        padding: 10px;
+      }
+
+      .App-body {
+        display: flex;
+        justify-content: space-around
+      }
+
+      .currently-showing-shuffle {
+        font-size: 50px;
+        padding: 25px;
+        border-radius: 5px;
+        color: white;
+        background: red;
+      }
+
+      .currently-showing-nonshuffle {
+        font-size: 50px;
+        padding: 25px;
+        border-radius: 5px;
+        color: white;
+        background: green;
+      }
+
+      .title {
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+
+      .middle-column {
+        display: flex;
+        width: 620px;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+
+      .go-button {
+        width: 300px;
+        align-self: center;
+      }
+    </style>
   </head>
   <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <div class="App">
+      <div class="App-header">
+        <h1>Secret Santa 2018</h1>
+      </div>
+      <p class="App-intro">
+        The Handsie secret santa picker
+      </p>
+      <div class="App-body">
+        <div>
+          <div class="title">Yet to be picked!</div>
+          <ul id="to-be-selected"></ul>
+        </div>
+        <div class="middle-column">
+          <div id="main-display" class="currently-showing-nonshuffle">Press the button to begin!</div>
+          <button id="go-button">GO!</button>
+        </div>
+        <div>
+          <div class="title">Already given!</div>
+          <ul id="already-selected"></ul>
+        </div>
+      </div>
+    </div>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <script>
+        (function() {
+          const toBeSelected = [
+              'Paul',
+              'Hayley',
+              'Tom',
+              'Ben',
+              'Jack',
+              'Jim',
+              'Jo',
+              'Sam',
+              'Eloise',
+              'Kev',
+              'Caz',
+              'Phil',
+              'Hil',
+              'Simbo',
+              'Fred',
+              'Pat'
+          ];
+          const selected = [];
+          const toBeSelectedEl = document.getElementById('to-be-selected');
+          const selectedEl = document.getElementById('already-selected');
+          const mainDisplayEl = document.getElementById('main-display');
+          const goButtonEl = document.getElementById('go-button');
+  
+          const setupLists = () => {
+            const updateList = (list, el) => {
+              while (el.firstChild) {
+                el.removeChild(el.firstChild);
+              }
+              list.forEach(person => {
+                const li = document.createElement('li');
+                const content = document.createTextNode(person);
+                li.appendChild(content);
+                el.append(li);
+              });
+            }
+            updateList(toBeSelected, toBeSelectedEl);
+            updateList(selected, selectedEl);
+          }
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+          goButtonEl.onclick = () => {
+            goButtonEl.setAttribute('disabled', true);
+            let prevTimer = 1;
+
+            const doShuffle = initialTimer => new Promise((resolve) => {
+              const shuffle = (timer) => {
+                console.log(timer);
+                const index = Math.floor(Math.random() * toBeSelected.length);
+                const person = toBeSelected[index];
+                mainDisplayEl.innerText = person;
+                mainDisplayEl.className = 'currently-showing-shuffle';
+                if (timer > 3000) {
+                   return resolve(index);
+                }
+
+                const nextTimer = timer + prevTimer;
+                prevTimer = timer;
+                setTimeout(shuffle, timer, nextTimer);
+              }
+              shuffle(initialTimer);
+            });
+
+            doShuffle(1).then((index) => {
+              const person = toBeSelected[index];
+              toBeSelected.splice(index, 1);
+              selected.push(person);
+              setupLists();
+              mainDisplayEl.className = 'currently-showing-nonshuffle';
+              if (toBeSelected.length) {
+                goButtonEl.removeAttribute('disabled');
+              }
+            });
+          };
+
+          setupLists();
+        })();
+      </script>
+
   </body>
 </html>
